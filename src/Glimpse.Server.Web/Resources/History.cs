@@ -8,13 +8,13 @@ using Microsoft.Net.Http.Headers;
 
 namespace Glimpse.Server.Web
 {
-    public class MessageHistoryResource : IResource
+    public class History : IResource
     {
         private readonly IStorage _store;
         private readonly IQueryRequests _requests;
         private readonly bool _canQueryRequests;
 
-        public MessageHistoryResource(IStorage storage)
+        public History(IStorage storage)
         {
             _store = storage;
             _requests = storage.As<IQueryRequests>();
