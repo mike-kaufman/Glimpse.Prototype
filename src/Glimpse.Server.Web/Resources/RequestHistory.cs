@@ -14,7 +14,7 @@ namespace Glimpse.Server.Web.Resources
         public RequestHistory(IStorage storage)
         {
             if (!storage.Supports<IQueryRequests>())
-                throw new ArgumentException($"IStorage of type '{storage.GetType().AssemblyQualifiedName}' does not support IQueryRequests.", nameof(storage));
+                throw new ArgumentException($"IStorage implementation of type '{storage.GetType().FullName}' does not support IQueryRequests.", nameof(storage));
 
             _requests = storage.As<IQueryRequests>();
         }
