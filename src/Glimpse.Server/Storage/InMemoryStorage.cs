@@ -92,6 +92,9 @@ namespace Glimpse.Server.Storage
             /// </summary>
             public IEnumerable<IMessage> SnapshotMessages()
             {
+                // TODO:  For efficiency, you can probably replace this to return a custom IEnumerator
+                // that is tolerant of the underlying messages being updated.  Since messages are only 
+                // ever appended, this should be easy/safe to do. 
                 return SynchronizedRead(() =>
                 {
                     return new List<IMessage>(this._messages).AsReadOnly();
@@ -437,7 +440,8 @@ namespace Glimpse.Server.Storage
                 var allMessages = new List<IMessage>();
                 foreach (var requestInfo in this._requestTable.Values)
                 {
-                    allMessages.Concat(requestInfo.SnapshotMessages());
+                    var snapshot = requestInfo.SnapshotMessages();
+                    allMessages.AddRange(snapshot);
                 }
                 return allMessages;
             });
@@ -449,7 +453,15 @@ namespace Glimpse.Server.Storage
         /// <returns>All indices for all requests.</returns>
         private IEnumerable<RequestIndices> GetAllIndices()
         {
-            return this._requestTable.Values.Select((ri) => ri.Indices);
+            return this.SynchronizedRead(() =>
+            {
+                var allIndices = new List<RequestIndices>();
+                foreach (var v in this._requestTable.Values)
+                {
+                    allIndices.Add(v.Indices);
+                }
+                return allIndices;
+            });
         }
 
         /// <summary>
